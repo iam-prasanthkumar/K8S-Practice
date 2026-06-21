@@ -1,0 +1,34 @@
+apiVersion : v1
+kind : Pod
+Metadata:
+  Name : multi-container-pod
+  Labels: 
+    #The labels defined here should match the selector in the service YAML file to ensure that the service can route traffic to this pod.
+    app : multi-container-app
+    environment: production
+    team: DevOps
+Namespace: Project
+Spec: 
+  Containers:
+    - Name : nginx
+      Image : nginx:latest
+      Ports:
+        - ContainerPort: 80
+      Resources:
+        limits:
+          memory: "128Mi" # This line is added to specify resource limits for the container maximum.
+          cpu: "500m" # This line is added to specify resource limits for the container maximum.
+        requests:
+          memory: "64Mi" # This line is added to specify resource requests for the container minimum.
+          cpu: "250m" # This line is added to specify resource requests for the container minimum.
+    - Name : redis
+      Image : redis:latest
+      Ports:
+        - ContainerPort: 6379
+      Resources:
+        limits:
+          memory: "128Mi" # This line is added to specify resource limits for the container maximum.
+          cpu: "500m" # This line is added to specify resource limits for the container maximum.
+        requests:
+          memory: "64Mi" # This line is added to specify resource requests for the container minimum.
+          cpu: "250m" # This line is added to specify resource requests for the container minimum.

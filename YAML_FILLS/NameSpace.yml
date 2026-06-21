@@ -1,0 +1,7 @@
+apiVersion: v1
+Kind: Namespace
+Metadata: 
+  Name : Project
+  labels:
+    Environment: production
+    Team: DevOps

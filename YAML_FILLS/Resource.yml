@@ -1,0 +1,22 @@
+apiVersion : v1
+Kind : Pod
+Metadata:
+  Name : nginx
+  Labels: 
+    app : nginx
+    environment: production
+    team: DevOps
+Namespace: Project
+Spec:
+  Containers:
+    - Name : nginx
+      Image : nginx:latest
+      Ports:
+        - ContainerPort: 80
+      Resources:
+        limits:
+          memory: "128Mi" # This line is added to specify resource limits for the container maximum.
+          cpu: "500m" # This line is added to specify resource limits for the container maximum.
+        requests:
+          memory: "64Mi" # This line is added to specify resource requests for the container minimum.
+          cpu: "250m" # This line is added to specify resource requests for the container minimum.
