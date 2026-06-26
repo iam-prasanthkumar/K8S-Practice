@@ -1,0 +1,13 @@
+apiVersion : v1
+Kind : Pod
+Metadata: 
+  Name : debug
+  labels:
+    app: debug
+    environment: Development
+    project: roboshop
+spec:
+  containers:
+    - name: debug
+      image: prasanthkumar30/debug:v1
+      imagePullPolicy: Always

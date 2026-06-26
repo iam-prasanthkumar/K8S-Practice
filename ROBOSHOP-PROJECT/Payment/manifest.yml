@@ -1,0 +1,78 @@
+# #ConfigMap
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: payment
+#   namespace: roboshop
+# data:
+#   CART_HOST: "cart"
+#   CART_PORT: "8080"
+#   USER_HOST: "user"
+#   USER_PORT: "8080"
+#   AMQP_HOST: "rabbitmq"
+#   AMQP_USER: roboshop
+#   AMQP_PASS: roboshop123
+# ---
+#Write Deployment and Service for ROBOSHOP Project
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: payment
+  #it should be same as the name of the deployment in the pod yaml file
+  namespace: roboshop
+  labels:
+    project: roboshop
+    component: payment
+    tier: frontend
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      component: payment
+      tier: frontend
+  template:
+    metadata: 
+      labels:
+        project: roboshop
+        component: payment
+        tier: frontend
+    spec:
+      containers:
+        - name: payment
+          image: prasanthkumar30/payment:v1
+          imagePullPolicy: Always # always pull the image from docker hub for every deployment
+          # envFrom:
+          # - configMapRef:
+          #     name: payment
+          ports:
+            - name: liveness-port
+              containerPort: 8080
+          liveinessProbe:
+              httpGet:
+                path: /
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 15
+          readinessProbe:
+              httpGet:
+                path: /
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment
+  namespace: roboshop
+spec:
+  type: LoadBalancer
+  selector:
+    project: roboshop
+    component: payment
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80 #service port
+      targetPort: 80 #Container port

@@ -1,0 +1,72 @@
+#ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping
+  namespace: roboshop
+data:
+  CART_ENDPOINT: "cart:8080"
+  DB_HOST: "mysql"
+---
+#Write Deployment and Service for ROBOSHOP Project
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: shipping
+  #it should be same as the name of the deployment in the pod yaml file
+  namespace: roboshop
+  labels:
+    project: roboshop
+    component: shipping
+    tier: backend
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      component: shipping
+      tier: backend
+  template:
+    metadata: 
+      labels:
+        project: roboshop
+        component: shipping
+        tier: backend
+    spec:
+      containers:
+        - name: shipping
+          image: prasanthkumar30/shipping:v1
+          imagePullPolicy: Always # always pull the image from docker hub for every deployment
+          envFrom:
+          - configMapRef:
+              name: shipping 
+          ports:
+            - name: liveness-port
+              containerPort: 8080
+          liveinessProbe:
+              httpGet:
+                path: /health
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 15
+          readinessProbe:
+              httpGet:
+                path: /health
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping
+  namespace: roboshop
+spec:
+  selector:
+    project: roboshop
+    component: shipping
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 8080 #service port
+      targetPort: 8080 #Container port

@@ -1,0 +1,73 @@
+#ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart
+  namespace: roboshop
+data:
+  REDIS_HOST: "redis"
+  CATALOGUE_HOST: "catalogue"
+  CATALOGUE_PORT: "8080"
+---
+#Write Deployment and Service for ROBOSHOP Project
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: cart
+  #it should be same as the name of the deployment in the pod yaml file
+  namespace: roboshop
+  labels:
+    project: roboshop
+    component: cart
+    tier: backend
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      component: cart
+      tier: backend
+  template:
+    metadata: 
+      labels:
+        project: roboshop
+        component: cart
+        tier: backend
+    spec:
+      containers:
+        - name: cart
+          image: prasanthkumar30/cart:v1
+          imagePullPolicy: Always # always pull the image from docker hub for every deployment
+          envFrom:
+          - configMapRef:
+              name: cart
+          ports:
+            - name: liveness-port
+              containerPort: 8080
+          liveinessProbe:
+              httpGet:
+                path: /health
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 20
+          readinessProbe:
+              httpGet:
+                path: /health
+                port: liveness-port
+              failureThreshold: 1
+              periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart
+  namespace: roboshop
+spec:
+  selector:
+    project: roboshop
+    component: cart
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 8080 #service port
+      targetPort: 8080 #Container port
