@@ -32,7 +32,7 @@ spec:
             - name: RABBITMQ_DEFAULT_PASS
               value: roboshop123
           imagePullPolicy: Always # always pull the image from docker hub for every deployment
-          liveinessProbe:
+          livenessProbe:
             tcpSocket:
               port: 5672
             initialDelaySeconds: 5

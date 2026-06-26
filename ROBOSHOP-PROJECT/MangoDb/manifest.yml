@@ -27,7 +27,7 @@ spec:
         - name: mongodb
           image: prasanthkumar30/mongo:v1
           imagePullPolicy: Always # always pull the image from docker hub for every deployment
-          liveinessProbe:
+          livenessProbe:
             tcpSocket:
               port: 27017
             initialDelaySeconds: 20

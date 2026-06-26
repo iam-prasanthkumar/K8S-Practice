@@ -27,7 +27,7 @@ spec:
         - name: mysql
           image: prasanthkumar30/mysql:v1
           imagePullPolicy: Always # always pull the image from docker hub for every deployment
-          # liveinessProbe:
+          # livenessProbe:
           #   tcpSocket:
           #     port: 3306
           #   initialDelaySeconds: 20

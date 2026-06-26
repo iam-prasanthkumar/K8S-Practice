@@ -27,7 +27,7 @@ spec:
         - name: redis
           image: redis:7.0
           imagePullPolicy: Always # always pull the image from docker hub for every deployment
-          liveinessProbe:
+          livenessProbe:
             tcpSocket:
               port: 6379
             initialDelaySeconds: 20
