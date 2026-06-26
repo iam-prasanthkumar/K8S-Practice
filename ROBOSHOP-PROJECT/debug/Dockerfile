@@ -1,5 +1,5 @@
 FROM almalinux:8
-RUN RUN dnf install -y \
+RUN dnf install -y \
     net-tools \
     telnet \
     iputils \
