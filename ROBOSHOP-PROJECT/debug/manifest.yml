@@ -1,7 +1,7 @@
-apiVersion : v1
-Kind : Pod
-Metadata: 
-  Name : debug
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug
   labels:
     app: debug
     environment: development
