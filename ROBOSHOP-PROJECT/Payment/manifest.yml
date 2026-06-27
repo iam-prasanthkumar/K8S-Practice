@@ -1,18 +1,18 @@
 # #ConfigMap
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: payment
-#   namespace: roboshop
-# data:
-#   CART_HOST: "cart"
-#   CART_PORT: "8080"
-#   USER_HOST: "user"
-#   USER_PORT: "8080"
-#   AMQP_HOST: "rabbitmq"
-#   AMQP_USER: roboshop
-#   AMQP_PASS: roboshop123
-# ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment
+  namespace: roboshop
+data:
+  CART_HOST: "cart"
+  CART_PORT: "8080"
+  USER_HOST: "user"
+  USER_PORT: "8080"
+  AMQP_HOST: "rabbitmq"
+  AMQP_USER: roboshop
+  AMQP_PASS: roboshop123
+---
 #Write Deployment and Service for ROBOSHOP Project
 apiVersion: apps/v1
 kind: Deployment 
@@ -23,20 +23,20 @@ metadata:
   labels:
     project: roboshop
     component: payment
-    tier: frontend
+    tier: backend
 spec: 
   replicas: 1
   selector:
     matchLabels:
       project: roboshop
       component: payment
-      tier: frontend
+      tier: backend
   template:
     metadata: 
       labels:
         project: roboshop
         component: payment
-        tier: frontend
+        tier: backend
     spec:
       containers:
         - name: payment
@@ -47,16 +47,16 @@ spec:
           #     name: payment
           ports:
             - name: liveness-port
-              containerPort: 80
+              containerPort: 8080
           livenessProbe:
               httpGet:
-                path: /
+                path: /health
                 port: liveness-port
               failureThreshold: 1
               periodSeconds: 15
           readinessProbe:
               httpGet:
-                path: /
+                path: /health
                 port: liveness-port
               failureThreshold: 1
               periodSeconds: 15
@@ -67,12 +67,11 @@ metadata:
   name: payment
   namespace: roboshop
 spec:
-  type: LoadBalancer
   selector:
     project: roboshop
     component: payment
-    tier: frontend
+    tier: backend
   ports:
     - protocol: TCP
-      port: 80 #service port
-      targetPort: 80 #Container port
+      port: 8080 #service port
+      targetPort: 8080 #Container port
