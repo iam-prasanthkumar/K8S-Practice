@@ -1,0 +1,61 @@
+#Frist create storge class and PVC and then attach to pod
+
+#storge class path: examples/kubernetes/dynamic-provisioning/manifests/storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-dynamic
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+
+#PVC claim step
+---
+piVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-dynamic # it should Be equal to the metadata.name
+  resources:
+    requests:
+      storage: 4Gi
+
+#POD creations and attached PVC
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ebs-dynamic
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    volumeMounts:
+    - name: persistent-storage #the should be equal to the below voulme name
+      mountPath: /usr/share/nginx/html 
+      # not requreid due to the based on pod the disk will create oon that
+  # nodeSelector: 
+  #   topology.kubernetes.io/zone: us-east-1b #to find this use this commond kubectl get nodes --show-lables
+  volumes:
+  - name: persistent-storage #you can use any name
+    persistentVolumeClaim:
+      claimName: ebs-dynamic #this should be equal to the volumeName of PVC
+
+# After attaced PVC then you can check ebs status in AWS it should be IN-USE before it avalible state 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebs-dynamic
+spec: 
+  type: LoadBalancer
+  selector:
+      app: nginx
+  ports:
+    - port: 80
+      targetPort: 80

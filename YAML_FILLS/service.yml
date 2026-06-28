@@ -12,9 +12,10 @@ spec:
   #The selector is used to identify the pods that this service will route traffic to. It should match the labels defined in the pod specification.
   selector:
     app: multi-container-app
+  type: NodePort
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-  type: NodePort
+  
   

@@ -1,0 +1,69 @@
+#  EKS EBS driver git ->examples/kubernetes/static-provisioning
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ebs-static-pv-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain #Delete -- delete the volume, Retain- dont delete the data, Recycle - Delete data but not delete the Drive
+  capacity:
+    storage: 15Gi
+  csi:
+    driver: ebs.csi.aws.com
+    fsType: ext4
+    volumeHandle: vol-03c604538dd7d2f41 #this volume id where the EBS attaced the id shoud be given here
+
+#if want use above create voulme use concept like PVC 
+#Path: i took code-> examples/kubernetes/static-provisioning/manifests/claim.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-static-pv-pvc
+spec:
+  volumeName: ebs-static-pv-pvc #This volume name should be equal to the PV volume i.e PVC metadata.name,
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+# I want to attced the above create PVC to the POD 
+#Note : Only possiable to attced same AZ i.e where i create the voulme that node i can attace
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ebs-static-pv-pvc
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    volumeMounts:
+    - name: persistent-storage #the should be equal to the below voulme name
+      mountPath: /usr/share/nginx/html 
+  nodeSelector: # this one used to this Pod create below mention zone
+    topology.kubernetes.io/zone: us-east-1b #to find this use this commond kubectl get nodes --show-lables
+  volumes:
+  - name: persistent-storage #you can use any name
+    persistentVolumeClaim:
+      claimName: ebs-static-pv-pvc #this should be equal to the volumeName of PVC
+
+# After attaced PVC then you can check ebs status in AWS it should be IN-USE before it avalible state 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebs-static-pv-pvc
+spec: 
+  type: LoadBalancer
+  selector:
+      app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+  
+
